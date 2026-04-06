@@ -50,8 +50,36 @@ const whatsappMessages = {
   contact: "Olá! Quero falar com a Quejinho Veículos."
 };
 
-/* ---------- Veículos (fallback vazio — dados vêm do Firebase) ---------- */
-let featuredCars = [];
+/* ---------- Veículos (fallback demo — substituídos pelo Firebase quando disponível) ---------- */
+let featuredCars = [
+  {
+    id: 1, brand: "Toyota", name: "Toyota Corolla XEi 2.0", year: "2021/2022",
+    fuel: "Flex", transmission: "Automático", km: "38.000 km", price: "R$ 129.900",
+    images: [
+      "https://www.autoo.com.br/fotos/2020/9/960_720/toyota_corolla_2021_1_25092020_35097_960_720.jpg",
+      "https://www.autoo.com.br/fotos/2020/9/960_720/toyota_corolla_2021_1_25092020_35098_960_720.jpg",
+      "https://www.autoo.com.br/fotos/2020/9/960_720/toyota_corolla_2021_1_25092020_35099_960_720.jpg"
+    ], badge: "Destaque"
+  },
+  {
+    id: 2, brand: "Jeep", name: "Jeep Compass Limited", year: "2022/2022",
+    fuel: "Flex", transmission: "Automático", km: "27.000 km", price: "R$ 159.900",
+    images: [
+      "https://www.autoo.com.br/fotos/2021/11/960_720/jeep_compass_2022_1_19112021_67846_960_720.jpg",
+      "https://www.autoo.com.br/fotos/2021/11/960_720/jeep_compass_2022_1_19112021_67847_960_720.jpg",
+      "https://www.autoo.com.br/fotos/2022/6/960_720/jeep_compass_2022_1_03062022_71575_960_720.jpg"
+    ], badge: "Seminovo"
+  },
+  {
+    id: 3, brand: "Fiat", name: "Fiat Pulse Audace Turbo", year: "2023/2024",
+    fuel: "Flex", transmission: "Automático", km: "8.500 km", price: "R$ 109.900",
+    images: [
+      "https://www.autoo.com.br/fotos/2022/11/960_720/fiat_pulse_2023_1_17112022_72593_960_720.jpg",
+      "https://www.autoo.com.br/fotos/2022/11/960_720/fiat_pulse_2023_1_17112022_72594_960_720.jpg",
+      "https://www.autoo.com.br/fotos/2022/11/960_720/fiat_pulse_2023_1_17112022_72595_960_720.jpg"
+    ], badge: "Novo"
+  }
+];
 
 /* ---------- Depoimentos ---------- */
 /* NOTA: Estes são exemplos editáveis. Substitua pelos depoimentos reais. */
@@ -144,10 +172,18 @@ const faqItems = [
   }
 ];
 
-/* ---------- Carregamento do Firebase ---------- */
+/* ---------- Carregamento do Firebase (com timeout de 5s) ---------- */
+function _withTimeout(promise, ms) {
+  return Promise.race([
+    promise,
+    new Promise(function (_, reject) {
+      setTimeout(function () { reject(new Error('Timeout: Firebase demorou mais de ' + ms + 'ms')); }, ms);
+    })
+  ]);
+}
+
 const dataReady = (async function loadFromFirebase() {
   try {
-    // Verificar se Firebase SDK está disponível
     if (typeof firebase === 'undefined' || !firebase.initializeApp) {
       console.warn('Firebase SDK não disponível, usando dados locais.');
       return;
@@ -156,32 +192,34 @@ const dataReady = (async function loadFromFirebase() {
     firebase.initializeApp(firebaseConfig);
     const firestore = firebase.firestore();
 
-    const [infoSnap, veiculosSnap] = await Promise.all([
-      firestore.doc(`restaurants/${GARAGEM_SLUG}/data/businessInfo`).get(),
-      firestore.doc(`restaurants/${GARAGEM_SLUG}/data/veiculos`).get()
-    ]);
+    const [infoSnap, veiculosSnap] = await _withTimeout(
+      Promise.all([
+        firestore.doc('restaurants/' + GARAGEM_SLUG + '/data/businessInfo').get(),
+        firestore.doc('restaurants/' + GARAGEM_SLUG + '/data/veiculos').get()
+      ]),
+      5000
+    );
 
     if (infoSnap.exists && infoSnap.data().content) {
-      businessInfo = { ...businessInfo, ...infoSnap.data().content };
+      businessInfo = Object.assign({}, businessInfo, infoSnap.data().content);
     }
 
     if (veiculosSnap.exists && veiculosSnap.data().content) {
-      // Normalizar imagens: no admin, cada imagem é {url, storagePath}
-      // No site, precisamos de URLs simples ou objetos com .url
-      const cars = veiculosSnap.data().content.map((car, i) => ({
-        ...car,
-        id: car.id || i + 1,
-        images: (car.images || []).map(img =>
-          typeof img === 'string' ? img : img.url
-        ).filter(Boolean)
-      }));
+      var cars = veiculosSnap.data().content.map(function (car, i) {
+        return Object.assign({}, car, {
+          id: car.id || i + 1,
+          images: (car.images || []).map(function (img) {
+            return typeof img === 'string' ? img : img.url;
+          }).filter(Boolean)
+        });
+      });
       if (cars.length > 0) {
         featuredCars = cars;
       }
     }
 
-    console.log('Dados carregados do Firebase:', featuredCars.length, 'veículos');
+    console.log('Firebase OK:', featuredCars.length, 'veículos carregados');
   } catch (err) {
-    console.warn('Falha ao carregar do Firebase, usando dados locais:', err.message);
+    console.warn('Firebase falhou, usando dados locais:', err.message);
   }
 })();

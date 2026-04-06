@@ -215,7 +215,7 @@
       }, { passive: true });
       gallery.addEventListener('touchend', function (e) {
         const diff = touchStartX - e.changedTouches[0].screenX;
-        if (Math.abs(diff) > 40) {
+        if (Math.abs(diff) > 50) {
           goTo(diff > 0 ? current + 1 : current - 1);
         }
       }, { passive: true });
@@ -398,7 +398,7 @@
     track.addEventListener('touchstart', function (e) { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
     track.addEventListener('touchend', function (e) {
       const diff = touchStartX - e.changedTouches[0].screenX;
-      if (Math.abs(diff) > 40) {
+      if (Math.abs(diff) > 50) {
         goTo(diff > 0 ? current + 1 : current - 1);
         restartAutoplay();
       }
@@ -527,7 +527,7 @@
   function populateBusinessInfo() {
     // Hero
     const heroBadge = document.getElementById('heroBadge');
-    if (heroBadge) heroBadge.textContent = `📍 ${businessInfo.city}`;
+    if (heroBadge) heroBadge.innerHTML = `${icons['map-pin']} ${businessInfo.city}`;
 
     const heroSubtitle = document.getElementById('heroSubtitle');
     if (heroSubtitle) heroSubtitle.textContent = `${businessInfo.tagline} com atendimento de confiança em ${businessInfo.city}.`;
@@ -603,6 +603,9 @@
     overlay.id = 'mobileOverlay';
 
     const menuHTML = `
+      <button class="mobile-overlay__close" aria-label="Fechar menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
       <nav class="mobile-overlay__menu">
         <a href="#veiculos" class="mobile-overlay__link">Veículos</a>
         <a href="#financiamento" class="mobile-overlay__link">Financiamento</a>
@@ -623,6 +626,13 @@
       mobileWaBtn.setAttribute('rel', 'noopener noreferrer');
     }
 
+    function close() {
+      btn.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+      btn.setAttribute('aria-expanded', 'false');
+    }
+
     function toggle() {
       const isActive = btn.classList.toggle('active');
       overlay.classList.toggle('active', isActive);
@@ -632,9 +642,17 @@
 
     btn.addEventListener('click', toggle);
 
+    // Botão X fecha
+    overlay.querySelector('.mobile-overlay__close').addEventListener('click', close);
+
+    // Escape fecha
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && btn.classList.contains('active')) close();
+    });
+
     overlay.querySelectorAll('a[href^="#"]').forEach(link => {
       link.addEventListener('click', () => {
-        if (btn.classList.contains('active')) toggle();
+        if (btn.classList.contains('active')) close();
       });
     });
   }
@@ -793,20 +811,31 @@
 
   /* ========== Init ========== */
   function init() {
-    populateBusinessInfo();
-    initWhatsappButtons();
-    initHeroShowcase();
-    renderTrustBar();
-    renderBrandFilters();
-    renderVehicles();
-    initFilters();
-    renderHighlights();
-    renderTestimonials();
-    renderFAQ();
-    initLightbox();
-    initHeaderScroll();
-    initMobileMenu();
-    initSmoothScroll();
+    try {
+      populateBusinessInfo();
+      initWhatsappButtons();
+      initHeroShowcase();
+      renderTrustBar();
+      renderBrandFilters();
+      renderVehicles();
+      initFilters();
+      renderHighlights();
+      renderTestimonials();
+      renderFAQ();
+      initLightbox();
+      initHeaderScroll();
+      initMobileMenu();
+      initSmoothScroll();
+    } catch (err) {
+      console.error('Erro ao inicializar site:', err);
+    }
+
+    // Esconder loading screen
+    var loadingEl = document.getElementById('loadingScreen');
+    if (loadingEl) {
+      loadingEl.classList.add('hidden');
+      setTimeout(function () { loadingEl.remove(); }, 500);
+    }
     initRevealObserver();
   }
 

@@ -15,12 +15,12 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Quejinho Veículos | Veículos Seminovos em Taquaritinga - SP">
   <meta property="og:description" content="Compra, venda, troca e financiamento de veículos com atendimento de confiança. Fale no WhatsApp.">
-  <meta property="og:image" content="assets/og-quejinho.jpg">
+  <meta property="og:image" content="https://quejinhoveiculos.com.br/assets/og-quejinho.jpg">
   <meta property="og:url" content="https://quejinhoveiculos.com.br">
   <meta property="og:locale" content="pt_BR">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <!-- Favicon (emoji fallback até ter arquivo real) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,7 +37,7 @@
     "name": "Quejinho Veículos",
     "description": "Compra, venda, troca e financiamento de veículos seminovos e usados em Taquaritinga - SP.",
     "url": "https://quejinhoveiculos.com.br",
-    "telephone": "(16) 3253-0000",
+    "telephone": "(16) 99635-5566",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Taquaritinga",
@@ -66,6 +66,14 @@
   </script>
 </head>
 <body>
+
+  <!-- ========== LOADING SCREEN ========== -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="loading-screen__inner">
+      <div class="loading-screen__spinner"></div>
+      <p class="loading-screen__text">Carregando veículos...</p>
+    </div>
+  </div>
 
   <!-- ========== HEADER ========== -->
   <header class="header" id="header">

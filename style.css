@@ -234,6 +234,38 @@ button { border: none; background: none; cursor: pointer; font: inherit; color: 
 .btn--xl { padding: 1.1rem 2.5rem; font-size: 1.1rem; }
 .btn--sm { padding: .55rem 1.2rem; font-size: var(--fs-xs); }
 
+/* ---------- Loading Screen ---------- */
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-body);
+  transition: opacity .4s var(--ease-out);
+}
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+.loading-screen__inner { text-align: center; }
+.loading-screen__spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--red);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-screen__text {
+  font-family: var(--font-display);
+  font-size: var(--fs-small);
+  color: var(--text-muted);
+}
+
 /* ---------- Animations ---------- */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(30px); }
@@ -452,6 +484,11 @@ button { border: none; background: none; cursor: pointer; font: inherit; color: 
   padding: .4rem .9rem;
   border-radius: var(--radius-full);
   margin-bottom: var(--space-md);
+}
+.hero__badge svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
 }
 
 .hero__title {
@@ -1868,6 +1905,27 @@ button { border: none; background: none; cursor: pointer; font: inherit; color: 
 .mobile-overlay.active {
   opacity: 1;
   pointer-events: auto;
+}
+
+.mobile-overlay__close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  border: none;
+  border-radius: 50%;
+  color: var(--gray-600);
+  cursor: pointer;
+  transition: background var(--duration) var(--ease-out);
+}
+.mobile-overlay__close:hover {
+  background: var(--gray-200);
+  color: var(--gray-900);
 }
 
 .mobile-overlay__menu {
